@@ -1,12 +1,71 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from "react";
+import AuthPages from "@/components/AuthPages";
+import InterviewSetup, { InterviewConfig } from "@/components/InterviewSetup";
+import InterviewInterface, { InterviewResults as IInterviewResults } from "@/components/InterviewInterface";
+import InterviewResults from "@/components/InterviewResults";
+
+type AppState = "auth" | "setup" | "interview" | "results";
 
 const Index = () => {
+  const [appState, setAppState] = useState<AppState>("auth");
+  const [interviewConfig, setInterviewConfig] = useState<InterviewConfig | null>(null);
+  const [interviewResults, setInterviewResults] = useState<IInterviewResults | null>(null);
+
+  const handleAuthSuccess = () => {
+    setAppState("setup");
+  };
+
+  const handleStartInterview = (config: InterviewConfig) => {
+    setInterviewConfig(config);
+    setAppState("interview");
+  };
+
+  const handleInterviewComplete = (results: IInterviewResults) => {
+    setInterviewResults(results);
+    setAppState("results");
+  };
+
+  const handleRetryInterview = () => {
+    setAppState("setup");
+    setInterviewResults(null);
+  };
+
+  const handleBackToHome = () => {
+    setAppState("setup");
+    setInterviewConfig(null);
+    setInterviewResults(null);
+  };
+
+  const handleExitInterview = () => {
+    setAppState("setup");
+  };
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="mb-4 text-4xl font-bold">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen">
+      {appState === "auth" && (
+        <AuthPages onAuthSuccess={handleAuthSuccess} />
+      )}
+      
+      {appState === "setup" && (
+        <InterviewSetup onStartInterview={handleStartInterview} />
+      )}
+      
+      {appState === "interview" && interviewConfig && (
+        <InterviewInterface 
+          config={interviewConfig}
+          onComplete={handleInterviewComplete}
+          onExit={handleExitInterview}
+        />
+      )}
+      
+      {appState === "results" && interviewResults && interviewConfig && (
+        <InterviewResults 
+          results={interviewResults}
+          config={interviewConfig}
+          onRetry={handleRetryInterview}
+          onHome={handleBackToHome}
+        />
+      )}
     </div>
   );
 };

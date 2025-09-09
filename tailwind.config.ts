@@ -22,6 +22,13 @@ export default {
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
+          light: "hsl(var(--primary-light))",
+          dark: "hsl(var(--primary-dark))",
+        },
+        coral: {
+          DEFAULT: "hsl(var(--accent-coral))",
+          light: "hsl(var(--accent-coral-light))",
+          dark: "hsl(var(--accent-coral-dark))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -34,6 +41,14 @@ export default {
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
         },
         accent: {
           DEFAULT: "hsl(var(--accent))",
@@ -84,6 +99,19 @@ export default {
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "bounce-subtle": "bounce 2s infinite",
+      },
+      backgroundImage: {
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-coral": "var(--gradient-coral)",
+        "gradient-hero": "var(--gradient-hero)",
+        "gradient-subtle": "var(--gradient-subtle)",
+      },
+      boxShadow: {
+        "primary": "var(--shadow-primary)",
+        "coral": "var(--shadow-coral)",
+        "elegant": "var(--shadow-elegant)",
       },
     },
   },
