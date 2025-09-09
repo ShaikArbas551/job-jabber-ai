@@ -7,6 +7,44 @@ interface QuestionBank {
 }
 
 const questionBank: QuestionBank = {
+  backend: {
+    easy: [
+      "What is the difference between HTTP and HTTPS?",
+      "Explain what REST API means and its basic principles.",
+      "What is a database and why do we use it?",
+      "What does CRUD stand for in database operations?",
+      "Explain the difference between GET and POST HTTP methods.",
+      "What is JSON and why is it commonly used in APIs?",
+      "What is the purpose of a web server?",
+      "Explain what SQL stands for and its basic purpose.",
+      "What is the difference between a relational and non-relational database?",
+      "What does API stand for and what is its purpose?"
+    ],
+    intermediate: [
+      "Explain the concept of database indexing and its benefits.",
+      "What are the different types of joins in SQL? Explain each.",
+      "How do you handle authentication and authorization in web applications?",
+      "Explain the difference between synchronous and asynchronous programming.",
+      "What is middleware and how is it used in web frameworks?",
+      "Describe the MVC (Model-View-Controller) architecture pattern.",
+      "What are the advantages and disadvantages of microservices architecture?",
+      "Explain database normalization and why it's important.",
+      "How do you handle error handling and logging in backend applications?",
+      "What is caching and how can it improve application performance?"
+    ],
+    hard: [
+      "Design a scalable system for handling millions of concurrent users.",
+      "Explain how you would implement distributed transactions across multiple services.",
+      "How would you design a database schema for a social media platform?",
+      "Describe strategies for handling database migration in production systems.",
+      "How would you implement real-time messaging between multiple users?",
+      "Explain various load balancing algorithms and when to use each.",
+      "How would you handle eventual consistency in a distributed system?",
+      "Design a fault-tolerant system that can handle server failures gracefully.",
+      "Explain how you would implement a rate limiting system for an API.",
+      "How would you design a system to process millions of events per second?"
+    ]
+  },
   frontend: {
     easy: [
       "What is the difference between let, const, and var in JavaScript?",
@@ -277,6 +315,44 @@ const questionBank: QuestionBank = {
 
 // Correct answers database
 const correctAnswers: QuestionBank = {
+  backend: {
+    easy: [
+      "HTTPS uses SSL/TLS encryption for secure data transmission, while HTTP sends data in plain text. HTTPS is essential for protecting sensitive information.",
+      "REST (Representational State Transfer) is an architectural style for APIs using HTTP methods, stateless communication, and resource-based URLs.",
+      "A database stores and organizes data efficiently. We use it for persistent data storage, data integrity, concurrent access, and complex queries.",
+      "CRUD stands for Create, Read, Update, Delete - the four basic operations performed on database records.",
+      "GET retrieves data without modifying server state (idempotent), POST sends data to create/modify resources (not idempotent).",
+      "JSON (JavaScript Object Notation) is a lightweight data format. It's human-readable, language-independent, and perfect for API communication.",
+      "A web server handles HTTP requests, serves static files, processes dynamic content, and manages multiple client connections.",
+      "SQL (Structured Query Language) is used to communicate with relational databases for querying, updating, and managing data.",
+      "Relational databases use structured tables with relationships (SQL), while non-relational databases use flexible schemas (NoSQL).",
+      "API (Application Programming Interface) enables different software applications to communicate and share data or functionality."
+    ],
+    intermediate: [
+      "Database indexing creates data structures to speed up query performance by avoiding full table scans, improving search and sort operations.",
+      "INNER JOIN (matching records), LEFT JOIN (all left + matching right), RIGHT JOIN (all right + matching left), FULL OUTER JOIN (all records).",
+      "Authentication verifies identity (login), authorization determines permissions. Use tokens, sessions, middleware, and role-based access control.",
+      "Synchronous code executes sequentially (blocking), asynchronous code allows non-blocking operations using callbacks, promises, or async/await.",
+      "Middleware processes requests between client and server, handling authentication, logging, error handling, and data transformation.",
+      "MVC separates application into Model (data), View (presentation), Controller (business logic) for better organization and maintainability.",
+      "Microservices: Pros - scalability, technology diversity, fault isolation. Cons - complexity, network overhead, data consistency challenges.",
+      "Database normalization eliminates redundancy and ensures data integrity by organizing data into separate related tables.",
+      "Implement try-catch blocks, centralized error handlers, proper HTTP status codes, logging frameworks, and monitoring systems.",
+      "Caching stores frequently accessed data in memory for faster retrieval, reducing database load and improving response times."
+    ],
+    hard: [
+      "Use load balancers, microservices, horizontal scaling, CDNs, caching layers, database sharding, and auto-scaling infrastructure.",
+      "Implement 2-phase commit, saga pattern, event sourcing, or eventual consistency with compensation mechanisms across services.",
+      "Design user tables, posts, relationships, comments, with proper indexing, partitioning, and denormalization for performance.",
+      "Use blue-green deployments, rolling updates, backward compatibility, migration scripts, and feature flags for safe database changes.",
+      "Implement WebSockets, message queues (Redis/RabbitMQ), pub/sub patterns, and real-time databases with proper scaling.",
+      "Round-robin, weighted round-robin, least connections, IP hash, geographic routing - choose based on traffic patterns and requirements.",
+      "Use eventual consistency, conflict resolution strategies, vector clocks, and design for network partitions in distributed systems.",
+      "Implement redundancy, health checks, circuit breakers, graceful degradation, backup systems, and automatic failover mechanisms.",
+      "Use token bucket, sliding window, or fixed window algorithms with Redis, monitoring, and proper error responses.",
+      "Design event-driven architecture with message queues, stream processing (Kafka), horizontal scaling, and proper data partitioning."
+    ]
+  },
   frontend: {
     easy: [
       "let and const are block-scoped, var is function-scoped. const cannot be reassigned, let can be. var can be hoisted and redeclared.",

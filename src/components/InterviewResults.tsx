@@ -46,6 +46,23 @@ export default function InterviewResults({ results, config, onRetry, onHome }: I
 
   return (
     <div className="min-h-screen bg-gradient-subtle p-6">
+      {/* Header with Logo */}
+      <div className="max-w-6xl mx-auto mb-8">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10">
+            <img 
+              src="/lovable-uploads/b798171e-6379-4e47-9f86-f07dcaeecad5.png" 
+              alt="Interview Up AI" 
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div>
+            <h1 className="text-lg font-bold text-primary">Interview Up AI</h1>
+            <p className="text-xs text-muted-foreground">AI-Powered Interview Practice</p>
+          </div>
+        </div>
+      </div>
+      
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">

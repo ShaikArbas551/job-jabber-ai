@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Textarea } from "@/components/ui/textarea";
 import { 
   Mic, 
   MicOff, 
@@ -12,7 +13,8 @@ import {
   Clock,
   Target,
   CheckCircle,
-  XCircle
+  XCircle,
+  Send
 } from "lucide-react";
 import { InterviewConfig } from "./InterviewSetup";
 import { generateQuestion, evaluateAnswer } from "@/lib/questionEngine";
@@ -46,6 +48,7 @@ export default function InterviewInterface({ config, onComplete, onExit }: Inter
   const [isProcessing, setIsProcessing] = useState(false);
   const [answers, setAnswers] = useState<AnswerResult[]>([]);
   const [timeElapsed, setTimeElapsed] = useState(0);
+  const [showNextButton, setShowNextButton] = useState(false);
 
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const recognitionRef = useRef<any>(null);
@@ -146,13 +149,17 @@ export default function InterviewInterface({ config, onComplete, onExit }: Inter
     
     setAnswers(prev => [...prev, answerResult]);
     setIsProcessing(false);
-    
+    setShowNextButton(true);
+  };
+
+  const handleNextQuestion = () => {
     // Move to next question or complete interview
     if (currentQuestionIndex + 1 < config.questionCount) {
       setCurrentQuestionIndex(prev => prev + 1);
+      setShowNextButton(false);
       loadQuestion();
     } else {
-      completeInterview([...answers, answerResult]);
+      completeInterview([...answers]);
     }
   };
 
@@ -179,13 +186,32 @@ export default function InterviewInterface({ config, onComplete, onExit }: Inter
 
   return (
     <div className="min-h-screen bg-gradient-subtle p-6">
-      {/* Header */}
+      {/* Header with Logo */}
+      <div className="max-w-6xl mx-auto mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10">
+              <img 
+                src="/lovable-uploads/b798171e-6379-4e47-9f86-f07dcaeecad5.png" 
+                alt="Interview Up AI" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-primary">Interview Up AI</h1>
+              <p className="text-xs text-muted-foreground">AI-Powered Interview Practice</p>
+            </div>
+          </div>
+          <Button variant="outline" onClick={onExit}>
+            Exit Interview
+          </Button>
+        </div>
+      </div>
+      
+      {/* Progress Section */}
       <div className="max-w-4xl mx-auto mb-8">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={onExit}>
-              Exit Interview
-            </Button>
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="w-4 h-4" />
               <span>{formatTime(timeElapsed)}</span>
@@ -217,7 +243,12 @@ export default function InterviewInterface({ config, onComplete, onExit }: Inter
           <CardContent className="space-y-8">
             {/* Question */}
             <div className="bg-gradient-subtle p-6 rounded-xl">
-              <h3 className="text-lg font-semibold mb-4 text-primary">Question:</h3>
+              <div className="flex items-center gap-2 mb-4">
+                <Badge variant="outline" className="text-xs">
+                  Question {currentQuestionIndex + 1}
+                </Badge>
+                <h3 className="text-lg font-semibold text-primary">Question:</h3>
+              </div>
               <p className="text-xl leading-relaxed">{currentQuestion}</p>
             </div>
 
@@ -250,16 +281,22 @@ export default function InterviewInterface({ config, onComplete, onExit }: Inter
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <Volume2 className="w-4 h-4 text-primary" />
-                      <span className="text-sm font-medium">Live Transcript:</span>
+                      <span className="text-sm font-medium">Your Answer:</span>
                     </div>
-                    <p className="text-left italic">{transcript}</p>
+                    <Textarea
+                      value={transcript}
+                      onChange={(e) => setTranscript(e.target.value)}
+                      placeholder="Your recorded answer will appear here... You can edit it before submitting."
+                      className="min-h-[100px] text-base"
+                      disabled={isRecording || isProcessing}
+                    />
                   </CardContent>
                 </Card>
               )}
 
               {/* Action Buttons */}
               <div className="flex justify-center gap-4">
-                {transcript && !isRecording && (
+                {transcript && !isRecording && !showNextButton && (
                   <>
                     <Button
                       variant="outline"
@@ -276,7 +313,7 @@ export default function InterviewInterface({ config, onComplete, onExit }: Inter
                       onClick={handleSubmitAnswer}
                       variant="hero"
                       className="flex items-center gap-2"
-                      disabled={isProcessing}
+                      disabled={isProcessing || !transcript.trim()}
                     >
                       {isProcessing ? (
                         <>
@@ -285,12 +322,33 @@ export default function InterviewInterface({ config, onComplete, onExit }: Inter
                         </>
                       ) : (
                         <>
-                          Submit Answer
-                          <ChevronRight className="w-4 h-4" />
+                          <Send className="w-4 h-4" />
+                          Send Answer
                         </>
                       )}
                     </Button>
                   </>
+                )}
+                
+                {showNextButton && (
+                  <Button
+                    onClick={handleNextQuestion}
+                    variant="hero"
+                    size="lg"
+                    className="flex items-center gap-2"
+                  >
+                    {currentQuestionIndex + 1 < config.questionCount ? (
+                      <>
+                        Go to Next Question
+                        <ChevronRight className="w-4 h-4" />
+                      </>
+                    ) : (
+                      <>
+                        Complete Interview
+                        <CheckCircle className="w-4 h-4" />
+                      </>
+                    )}
+                  </Button>
                 )}
               </div>
             </div>

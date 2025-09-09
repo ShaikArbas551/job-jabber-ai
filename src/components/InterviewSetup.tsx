@@ -3,10 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Briefcase, Target, Clock, ChevronRight } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Briefcase, Target, Clock, ChevronRight, MoreHorizontal, LogOut } from "lucide-react";
 
 interface InterviewSetupProps {
   onStartInterview: (config: InterviewConfig) => void;
+  onLogout: () => void;
 }
 
 export interface InterviewConfig {
@@ -17,6 +19,7 @@ export interface InterviewConfig {
 
 const jobRoles = [
   { value: "frontend", label: "Frontend Developer", icon: "💻" },
+  { value: "backend", label: "Backend Developer", icon: "⚡" },
   { value: "fullstack", label: "Full Stack Developer", icon: "🚀" },
   { value: "datascientist", label: "Data Scientist", icon: "📊" },
   { value: "devops", label: "DevOps Engineer", icon: "⚙️" },
@@ -31,7 +34,7 @@ const difficultyLevels = [
   { value: "hard", label: "Hard", description: "Advanced and complex scenarios", color: "destructive" },
 ];
 
-export default function InterviewSetup({ onStartInterview }: InterviewSetupProps) {
+export default function InterviewSetup({ onStartInterview, onLogout }: InterviewSetupProps) {
   const [selectedRole, setSelectedRole] = useState<string>("");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("");
   const [questionCount, setQuestionCount] = useState<number>(5);
@@ -51,21 +54,55 @@ export default function InterviewSetup({ onStartInterview }: InterviewSetupProps
   const selectedDifficultyData = difficultyLevels.find(diff => diff.value === selectedDifficulty);
 
   return (
-    <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-6">
-      <Card className="w-full max-w-2xl shadow-elegant border-0">
-        <CardHeader className="text-center space-y-4 pb-8">
-          <div className="mx-auto w-16 h-16 bg-gradient-hero rounded-2xl flex items-center justify-center">
-            <Target className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-gradient-subtle p-6">
+      {/* Header with Logo and Menu */}
+      <div className="max-w-6xl mx-auto mb-8">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12">
+              <img 
+                src="/lovable-uploads/b798171e-6379-4e47-9f86-f07dcaeecad5.png" 
+                alt="Interview Up AI" 
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-primary">Interview Up AI</h1>
+              <p className="text-sm text-muted-foreground">AI-Powered Interview Practice</p>
+            </div>
           </div>
-          <div>
-            <CardTitle className="text-3xl font-bold bg-gradient-hero bg-clip-text text-transparent">
-              Interview Setup
-            </CardTitle>
-            <p className="text-muted-foreground mt-2">
-              Configure your AI-powered interview experience
-            </p>
-          </div>
-        </CardHeader>
+          
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="w-10 h-10 rounded-full">
+                <MoreHorizontal className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuItem onClick={onLogout} className="text-destructive focus:text-destructive">
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+      
+      <div className="flex items-center justify-center">
+        <Card className="w-full max-w-2xl shadow-elegant border-0">
+          <CardHeader className="text-center space-y-4 pb-8">
+            <div className="mx-auto w-16 h-16 bg-gradient-hero rounded-2xl flex items-center justify-center">
+              <Target className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-3xl font-bold bg-gradient-hero bg-clip-text text-transparent">
+                Interview Setup
+              </CardTitle>
+              <p className="text-muted-foreground mt-2">
+                Configure your AI-powered interview experience
+              </p>
+            </div>
+          </CardHeader>
         
         <CardContent className="space-y-8">
           {/* Job Role Selection */}
@@ -183,6 +220,7 @@ export default function InterviewSetup({ onStartInterview }: InterviewSetupProps
           </Button>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 }

@@ -40,6 +40,12 @@ const Index = () => {
     setAppState("setup");
   };
 
+  const handleLogout = () => {
+    setAppState("auth");
+    setInterviewConfig(null);
+    setInterviewResults(null);
+  };
+
   return (
     <div className="min-h-screen">
       {appState === "auth" && (
@@ -47,7 +53,7 @@ const Index = () => {
       )}
       
       {appState === "setup" && (
-        <InterviewSetup onStartInterview={handleStartInterview} />
+        <InterviewSetup onStartInterview={handleStartInterview} onLogout={handleLogout} />
       )}
       
       {appState === "interview" && interviewConfig && (
