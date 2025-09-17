@@ -57,7 +57,7 @@ export default function InterviewResults({ results, config, onRetry, onHome }: I
             />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-primary">Interview Up AI</h1>
+            <h1 className="text-lg font-bold text-primary">SkillUp - Interview Results</h1>
             <p className="text-xs text-muted-foreground">AI-Powered Interview Practice</p>
           </div>
         </div>

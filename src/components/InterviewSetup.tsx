@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Briefcase, Target, Clock, ChevronRight, MoreHorizontal, LogOut } from "lucide-react";
+import { Briefcase, Target, Clock, ChevronRight, MoreVertical, LogOut, ArrowLeft } from "lucide-react";
 
 interface InterviewSetupProps {
   onStartInterview: (config: InterviewConfig) => void;
@@ -67,24 +67,30 @@ export default function InterviewSetup({ onStartInterview, onLogout }: Interview
               />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-primary">Interview Up AI</h1>
+              <h1 className="text-xl font-bold text-primary">SkillUp - Interview Practice</h1>
               <p className="text-sm text-muted-foreground">AI-Powered Interview Practice</p>
             </div>
           </div>
           
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="w-10 h-10 rounded-full">
-                <MoreHorizontal className="w-5 h-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={onLogout} className="text-destructive focus:text-destructive">
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex space-x-2">
+            <Button variant="outline" onClick={onLogout}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={onLogout}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
       </div>
       

@@ -198,7 +198,7 @@ export default function InterviewInterface({ config, onComplete, onExit }: Inter
               />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-primary">Interview Up AI</h1>
+              <h1 className="text-lg font-bold text-primary">SkillUp - Interview</h1>
               <p className="text-xs text-muted-foreground">AI-Powered Interview Practice</p>
             </div>
           </div>

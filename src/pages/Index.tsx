@@ -1,10 +1,12 @@
 import { useState } from "react";
 import AuthPages from "@/components/AuthPages";
+import Dashboard from "@/components/Dashboard";
 import InterviewSetup, { InterviewConfig } from "@/components/InterviewSetup";
 import InterviewInterface, { InterviewResults as IInterviewResults } from "@/components/InterviewInterface";
 import InterviewResults from "@/components/InterviewResults";
+import ResumeBuilder from "@/components/ResumeBuilder";
 
-type AppState = "auth" | "setup" | "interview" | "results";
+type AppState = "auth" | "dashboard" | "setup" | "interview" | "results" | "resume";
 
 const Index = () => {
   const [appState, setAppState] = useState<AppState>("auth");
@@ -12,7 +14,7 @@ const Index = () => {
   const [interviewResults, setInterviewResults] = useState<IInterviewResults | null>(null);
 
   const handleAuthSuccess = () => {
-    setAppState("setup");
+    setAppState("dashboard");
   };
 
   const handleStartInterview = (config: InterviewConfig) => {
@@ -31,13 +33,25 @@ const Index = () => {
   };
 
   const handleBackToHome = () => {
-    setAppState("setup");
+    setAppState("dashboard");
     setInterviewConfig(null);
     setInterviewResults(null);
   };
 
   const handleExitInterview = () => {
     setAppState("setup");
+  };
+
+  const handleSelectInterview = () => {
+    setAppState("setup");
+  };
+
+  const handleSelectResume = () => {
+    setAppState("resume");
+  };
+
+  const handleBackToDashboard = () => {
+    setAppState("dashboard");
   };
 
   const handleLogout = () => {
@@ -52,8 +66,16 @@ const Index = () => {
         <AuthPages onAuthSuccess={handleAuthSuccess} />
       )}
       
+      {appState === "dashboard" && (
+        <Dashboard 
+          onSelectInterview={handleSelectInterview}
+          onSelectResume={handleSelectResume}
+          onLogout={handleLogout}
+        />
+      )}
+      
       {appState === "setup" && (
-        <InterviewSetup onStartInterview={handleStartInterview} onLogout={handleLogout} />
+        <InterviewSetup onStartInterview={handleStartInterview} onLogout={handleBackToDashboard} />
       )}
       
       {appState === "interview" && interviewConfig && (
@@ -71,6 +93,10 @@ const Index = () => {
           onRetry={handleRetryInterview}
           onHome={handleBackToHome}
         />
+      )}
+      
+      {appState === "resume" && (
+        <ResumeBuilder onBack={handleBackToDashboard} />
       )}
     </div>
   );

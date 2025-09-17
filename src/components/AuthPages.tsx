@@ -52,8 +52,8 @@ export default function AuthPages({ onAuthSuccess }: AuthPagesProps) {
               className="w-full h-full object-contain"
             />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Interview Up AI</h1>
-          <p className="text-white/80">Master your interview skills with AI</p>
+          <h1 className="text-3xl font-bold text-white mb-2">SkillUp</h1>
+          <p className="text-white/80">Enhance your professional skills with AI-powered interview practice and resume building</p>
         </div>
 
         <Card className="shadow-elegant border-0 backdrop-blur-sm bg-white/95">
