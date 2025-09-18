@@ -137,10 +137,10 @@ export default function InterviewInterface({ config, onComplete, onExit }: Inter
     setIsProcessing(true);
     
     // Evaluate the answer using AI
-    const evaluation = await evaluateAnswer(currentQuestion, transcript, config.role, config.difficulty);
+    const evaluation = evaluateAnswer(currentQuestion!, transcript);
     
     const answerResult: AnswerResult = {
-      question: currentQuestion,
+      question: currentQuestion!.question,
       userAnswer: transcript,
       correctAnswer: evaluation.correctAnswer,
       isCorrect: evaluation.isCorrect,

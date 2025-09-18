@@ -4,41 +4,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Eye, Download, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Eye, Download } from "lucide-react";
 import { toast } from "sonner";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 
-interface ResumeData {
-  personalInfo: {
-    fullName: string;
-    email: string;
-    phone: string;
-    address: string;
-    linkedIn: string;
-    website: string;
-  };
-  summary: string;
-  experience: Array<{
-    id: string;
-    jobTitle: string;
-    company: string;
-    duration: string;
-    description: string;
-  }>;
-  education: Array<{
-    id: string;
-    degree: string;
-    institution: string;
-    year: string;
-  }>;
-  skills: string[];
-  projects: Array<{
-    id: string;
-    title: string;
-    description: string;
-    technologies: string;
-  }>;
+interface FormData {
+  fullName: string;
+  phone: string;
+  email: string;
+  location: string;
+  objective: string;
+  education: string;
+  experience: string;
+  skills: string;
+  certifications: string;
+  projects: string;
 }
 
 interface ResumeBuilderProps {
@@ -46,245 +27,55 @@ interface ResumeBuilderProps {
 }
 
 const ResumeBuilder = ({ onBack }: ResumeBuilderProps) => {
-  const [currentStep, setCurrentStep] = useState<"form" | "preview">("form");
-  const [resumeData, setResumeData] = useState<ResumeData>({
-    personalInfo: {
-      fullName: "",
-      email: "",
-      phone: "",
-      address: "",
-      linkedIn: "",
-      website: "",
-    },
-    summary: "",
-    experience: [],
-    education: [],
-    skills: [],
-    projects: [],
+  const [formData, setFormData] = useState<FormData>({
+    fullName: "",
+    phone: "",
+    email: "",
+    location: "",
+    objective: "",
+    education: "",
+    experience: "",
+    skills: "",
+    certifications: "",
+    projects: "",
   });
+  const [showPreview, setShowPreview] = useState(false);
 
-  const addExperience = () => {
-    setResumeData(prev => ({
-      ...prev,
-      experience: [...prev.experience, {
-        id: Date.now().toString(),
-        jobTitle: "",
-        company: "",
-        duration: "",
-        description: "",
-      }]
-    }));
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const addEducation = () => {
-    setResumeData(prev => ({
-      ...prev,
-      education: [...prev.education, {
-        id: Date.now().toString(),
-        degree: "",
-        institution: "",
-        year: "",
-      }]
-    }));
-  };
-
-  const addProject = () => {
-    setResumeData(prev => ({
-      ...prev,
-      projects: [...prev.projects, {
-        id: Date.now().toString(),
-        title: "",
-        description: "",
-        technologies: "",
-      }]
-    }));
-  };
-
-  const removeExperience = (id: string) => {
-    setResumeData(prev => ({
-      ...prev,
-      experience: prev.experience.filter(exp => exp.id !== id)
-    }));
-  };
-
-  const removeEducation = (id: string) => {
-    setResumeData(prev => ({
-      ...prev,
-      education: prev.education.filter(edu => edu.id !== id)
-    }));
-  };
-
-  const removeProject = (id: string) => {
-    setResumeData(prev => ({
-      ...prev,
-      projects: prev.projects.filter(proj => proj.id !== id)
-    }));
-  };
-
-  const handleSkillsChange = (value: string) => {
-    const skills = value.split(',').map(skill => skill.trim()).filter(skill => skill);
-    setResumeData(prev => ({ ...prev, skills }));
-  };
-
-  const downloadPDF = async () => {
+  const generatePDF = () => {
     const element = document.getElementById('resume-preview');
     if (!element) return;
 
-    try {
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-      });
-      
+    html2canvas(element, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true
+    }).then((canvas) => {
+      const pdf = new jsPDF();
       const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
       const imgWidth = 210;
+      const pageHeight = 295;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save(`${resumeData.personalInfo.fullName || 'resume'}.pdf`);
-      toast("Resume downloaded successfully!");
-    } catch (error) {
-      toast("Error generating PDF. Please try again.");
-    }
+      let heightLeft = imgHeight;
+
+      let position = 0;
+
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save(`${formData.fullName.replace(/\s+/g, '_')}_Resume.pdf`);
+    });
   };
-
-  if (currentStep === "preview") {
-    return (
-      <div className="min-h-screen bg-gradient-subtle">
-        {/* Header */}
-        <header className="bg-card border-b shadow-elegant">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <div className="flex items-center space-x-3">
-                <img 
-                  src="/lovable-uploads/b798171e-6379-4e47-9f86-f07dcaeecad5.png" 
-                  alt="SkillUp Logo" 
-                  className="h-10 w-10"
-                />
-                <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                  SkillUp - Resume Preview
-                </h1>
-              </div>
-              <div className="flex space-x-2">
-                <Button variant="outline" onClick={() => setCurrentStep("form")}>
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Edit
-                </Button>
-                <Button onClick={downloadPDF} className="bg-gradient-primary">
-                  <Download className="h-4 w-4 mr-2" />
-                  Download PDF
-                </Button>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Resume Preview */}
-        <div className="max-w-4xl mx-auto p-8">
-          <div id="resume-preview" className="bg-white shadow-elegant rounded-lg p-8 text-black">
-            {/* Header */}
-            <div className="text-center border-b-2 border-gray-200 pb-6 mb-6">
-              <h1 className="text-3xl font-bold text-gray-800 mb-2">
-                {resumeData.personalInfo.fullName || "Your Name"}
-              </h1>
-              <div className="text-gray-600 space-y-1">
-                <p>{resumeData.personalInfo.email}</p>
-                <p>{resumeData.personalInfo.phone}</p>
-                <p>{resumeData.personalInfo.address}</p>
-                {resumeData.personalInfo.linkedIn && <p>LinkedIn: {resumeData.personalInfo.linkedIn}</p>}
-                {resumeData.personalInfo.website && <p>Website: {resumeData.personalInfo.website}</p>}
-              </div>
-            </div>
-
-            {/* Summary */}
-            {resumeData.summary && (
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-gray-800 mb-3 border-b border-gray-300 pb-1">
-                  Professional Summary
-                </h2>
-                <p className="text-gray-700 leading-relaxed">{resumeData.summary}</p>
-              </div>
-            )}
-
-            {/* Experience */}
-            {resumeData.experience.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-gray-800 mb-3 border-b border-gray-300 pb-1">
-                  Professional Experience
-                </h2>
-                {resumeData.experience.map((exp) => (
-                  <div key={exp.id} className="mb-4">
-                    <div className="flex justify-between items-start mb-1">
-                      <h3 className="font-semibold text-gray-800">{exp.jobTitle}</h3>
-                      <span className="text-gray-600 text-sm">{exp.duration}</span>
-                    </div>
-                    <p className="font-medium text-gray-700 mb-2">{exp.company}</p>
-                    <p className="text-gray-600 leading-relaxed">{exp.description}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Education */}
-            {resumeData.education.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-gray-800 mb-3 border-b border-gray-300 pb-1">
-                  Education
-                </h2>
-                {resumeData.education.map((edu) => (
-                  <div key={edu.id} className="mb-2">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-semibold text-gray-800">{edu.degree}</h3>
-                        <p className="text-gray-700">{edu.institution}</p>
-                      </div>
-                      <span className="text-gray-600">{edu.year}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Skills */}
-            {resumeData.skills.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-gray-800 mb-3 border-b border-gray-300 pb-1">
-                  Skills
-                </h2>
-                <div className="flex flex-wrap gap-2">
-                  {resumeData.skills.map((skill, index) => (
-                    <span key={index} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Projects */}
-            {resumeData.projects.length > 0 && (
-              <div className="mb-6">
-                <h2 className="text-xl font-bold text-gray-800 mb-3 border-b border-gray-300 pb-1">
-                  Projects
-                </h2>
-                {resumeData.projects.map((project) => (
-                  <div key={project.id} className="mb-4">
-                    <h3 className="font-semibold text-gray-800 mb-1">{project.title}</h3>
-                    <p className="text-gray-600 mb-2">{project.description}</p>
-                    {project.technologies && (
-                      <p className="text-sm text-gray-500">Technologies: {project.technologies}</p>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
@@ -307,337 +98,278 @@ const ResumeBuilder = ({ onBack }: ResumeBuilderProps) => {
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Back to Dashboard
               </Button>
-              <Button onClick={() => setCurrentStep("preview")} className="bg-gradient-coral">
-                <Eye className="h-4 w-4 mr-2" />
-                Preview Resume
-              </Button>
+              {!showPreview && (
+                <Button onClick={() => setShowPreview(true)} className="bg-gradient-primary">
+                  <Eye className="h-4 w-4 mr-2" />
+                  Preview Resume
+                </Button>
+              )}
             </div>
           </div>
         </div>
       </header>
 
-      {/* Form */}
-      <div className="max-w-4xl mx-auto p-8">
-        <div className="space-y-8">
-          {/* Personal Information */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
+      <div className="max-w-6xl mx-auto p-8">
+        {!showPreview ? (
+          <Card className="shadow-elegant border-0">
+            <CardHeader className="bg-gradient-primary text-white rounded-t-lg">
+              <CardTitle className="text-2xl">Build Your Professional Resume</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
+            <CardContent className="p-8 space-y-6">
+              {/* Personal Information */}
+              <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="fullName">Full Name *</Label>
+                  <Label htmlFor="fullName" className="text-sm font-semibold text-foreground mb-2 block">
+                    Full Name *
+                  </Label>
                   <Input
                     id="fullName"
-                    value={resumeData.personalInfo.fullName}
-                    onChange={(e) => setResumeData(prev => ({
-                      ...prev,
-                      personalInfo: { ...prev.personalInfo, fullName: e.target.value }
-                    }))}
+                    value={formData.fullName}
+                    onChange={(e) => handleInputChange('fullName', e.target.value)}
+                    className="h-12"
+                    placeholder="Enter your full name"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="email">Email *</Label>
+                  <Label htmlFor="phone" className="text-sm font-semibold text-foreground mb-2 block">
+                    Phone Number *
+                  </Label>
+                  <Input
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange('phone', e.target.value)}
+                    className="h-12"
+                    placeholder="+91 9876543210"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="email" className="text-sm font-semibold text-foreground mb-2 block">
+                    Email Address *
+                  </Label>
                   <Input
                     id="email"
                     type="email"
-                    value={resumeData.personalInfo.email}
-                    onChange={(e) => setResumeData(prev => ({
-                      ...prev,
-                      personalInfo: { ...prev.personalInfo, email: e.target.value }
-                    }))}
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    className="h-12"
+                    placeholder="your.email@example.com"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="phone">Phone *</Label>
+                  <Label htmlFor="location" className="text-sm font-semibold text-foreground mb-2 block">
+                    Location
+                  </Label>
                   <Input
-                    id="phone"
-                    value={resumeData.personalInfo.phone}
-                    onChange={(e) => setResumeData(prev => ({
-                      ...prev,
-                      personalInfo: { ...prev.personalInfo, phone: e.target.value }
-                    }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="address">Address</Label>
-                  <Input
-                    id="address"
-                    value={resumeData.personalInfo.address}
-                    onChange={(e) => setResumeData(prev => ({
-                      ...prev,
-                      personalInfo: { ...prev.personalInfo, address: e.target.value }
-                    }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="linkedIn">LinkedIn</Label>
-                  <Input
-                    id="linkedIn"
-                    value={resumeData.personalInfo.linkedIn}
-                    onChange={(e) => setResumeData(prev => ({
-                      ...prev,
-                      personalInfo: { ...prev.personalInfo, linkedIn: e.target.value }
-                    }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="website">Website</Label>
-                  <Input
-                    id="website"
-                    value={resumeData.personalInfo.website}
-                    onChange={(e) => setResumeData(prev => ({
-                      ...prev,
-                      personalInfo: { ...prev.personalInfo, website: e.target.value }
-                    }))}
+                    id="location"
+                    value={formData.location}
+                    onChange={(e) => handleInputChange('location', e.target.value)}
+                    className="h-12"
+                    placeholder="City, State"
                   />
                 </div>
               </div>
+
+              {/* Career Objective */}
+              <div>
+                <Label htmlFor="objective" className="text-sm font-semibold text-foreground mb-2 block">
+                  Career Objective
+                </Label>
+                <Textarea
+                  id="objective"
+                  value={formData.objective}
+                  onChange={(e) => handleInputChange('objective', e.target.value)}
+                  className="min-h-[100px]"
+                  placeholder="Write a brief career objective that describes your professional goals and what you bring to the organization..."
+                />
+              </div>
+
+              {/* Education */}
+              <div>
+                <Label htmlFor="education" className="text-sm font-semibold text-foreground mb-2 block">
+                  Education
+                </Label>
+                <Textarea
+                  id="education"
+                  value={formData.education}
+                  onChange={(e) => handleInputChange('education', e.target.value)}
+                  className="min-h-[120px]"
+                  placeholder="Bachelor of Engineering, Computer Science | 2022 to 2026&#10;Institution Name, Location | CGPA: 8.5&#10;&#10;Intermediate: Board of Intermediate | 2020 to 2022&#10;Institution Name | Percentage: 85%"
+                />
+              </div>
+
+              {/* Experience/Internships */}
+              <div>
+                <Label htmlFor="experience" className="text-sm font-semibold text-foreground mb-2 block">
+                  Professional Experience / Internships
+                </Label>
+                <Textarea
+                  id="experience"
+                  value={formData.experience}
+                  onChange={(e) => handleInputChange('experience', e.target.value)}
+                  className="min-h-[120px]"
+                  placeholder="Job Title - Company Name | Duration&#10;• Key responsibility or achievement&#10;• Another key responsibility&#10;&#10;Internship Title - Company Name | Duration&#10;• Project or responsibility description"
+                />
+              </div>
+
+              {/* Projects */}
+              <div>
+                <Label htmlFor="projects" className="text-sm font-semibold text-foreground mb-2 block">
+                  Projects
+                </Label>
+                <Textarea
+                  id="projects"
+                  value={formData.projects}
+                  onChange={(e) => handleInputChange('projects', e.target.value)}
+                  className="min-h-[100px]"
+                  placeholder="Developed a real-time e-commerce website using React and Node.js&#10;Created a student portal for college with user authentication&#10;Designed a responsive website for college culturals"
+                />
+              </div>
+
+              {/* Technical Skills */}
+              <div>
+                <Label htmlFor="skills" className="text-sm font-semibold text-foreground mb-2 block">
+                  Technical Skills
+                </Label>
+                <Textarea
+                  id="skills"
+                  value={formData.skills}
+                  onChange={(e) => handleInputChange('skills', e.target.value)}
+                  className="min-h-[80px]"
+                  placeholder="Programming: C, Python, Java, JavaScript&#10;Web Technologies: HTML, CSS, React, Node.js&#10;Tools: Microsoft Office, VS Code, Git"
+                />
+              </div>
+
+              {/* Certifications */}
+              <div>
+                <Label htmlFor="certifications" className="text-sm font-semibold text-foreground mb-2 block">
+                  Certifications
+                </Label>
+                <Textarea
+                  id="certifications"
+                  value={formData.certifications}
+                  onChange={(e) => handleInputChange('certifications', e.target.value)}
+                  className="min-h-[100px]"
+                  placeholder="HTML - INFOSYS SPRINGBOARD - Feb 2024&#10;CSS - INFOSYS SPRINGBOARD - Feb 2024&#10;WEB-DEVELOPMENT/JAVASCRIPT - EXCELR - Oct 2024"
+                />
+              </div>
             </CardContent>
           </Card>
+        ) : (
+          <div className="bg-white p-8 rounded-lg shadow-elegant">
+            <div id="resume-preview" className="max-w-4xl mx-auto bg-white p-8 text-black min-h-[11in]">
+              {/* Header Section */}
+              <div className="text-center mb-8 border-b-4 border-primary pb-6">
+                <h1 className="text-4xl font-bold text-primary mb-3 tracking-wide">{formData.fullName.toUpperCase()}</h1>
+                <div className="flex justify-center space-x-8 text-base font-medium">
+                  <span>📞 {formData.phone}</span>
+                  <span>✉️ {formData.email}</span>
+                  {formData.location && <span>📍 {formData.location}</span>}
+                </div>
+              </div>
 
-          {/* Professional Summary */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Professional Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Label htmlFor="summary">Summary</Label>
-              <Textarea
-                id="summary"
-                placeholder="Write a brief professional summary..."
-                value={resumeData.summary}
-                onChange={(e) => setResumeData(prev => ({ ...prev, summary: e.target.value }))}
-                className="min-h-[100px]"
-              />
-            </CardContent>
-          </Card>
+              {/* Career Objective */}
+              {formData.objective && (
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-primary mb-4 border-b-2 border-gray-300 pb-2">CAREER OBJECTIVE</h2>
+                  <p className="text-base leading-relaxed text-justify">{formData.objective}</p>
+                </div>
+              )}
 
-          {/* Experience */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Professional Experience</CardTitle>
-              <Button onClick={addExperience} size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Experience
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {resumeData.experience.map((exp, index) => (
-                <div key={exp.id} className="border rounded-lg p-4 space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-semibold">Experience {index + 1}</h4>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => removeExperience(exp.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <Label>Job Title</Label>
-                      <Input
-                        value={exp.jobTitle}
-                        onChange={(e) => setResumeData(prev => ({
-                          ...prev,
-                          experience: prev.experience.map(item =>
-                            item.id === exp.id ? { ...item, jobTitle: e.target.value } : item
-                          )
-                        }))}
-                      />
-                    </div>
-                    <div>
-                      <Label>Company</Label>
-                      <Input
-                        value={exp.company}
-                        onChange={(e) => setResumeData(prev => ({
-                          ...prev,
-                          experience: prev.experience.map(item =>
-                            item.id === exp.id ? { ...item, company: e.target.value } : item
-                          )
-                        }))}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label>Duration</Label>
-                    <Input
-                      placeholder="e.g., Jan 2020 - Present"
-                      value={exp.duration}
-                      onChange={(e) => setResumeData(prev => ({
-                        ...prev,
-                        experience: prev.experience.map(item =>
-                          item.id === exp.id ? { ...item, duration: e.target.value } : item
-                        )
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label>Job Description</Label>
-                    <Textarea
-                      placeholder="Describe your responsibilities and achievements..."
-                      value={exp.description}
-                      onChange={(e) => setResumeData(prev => ({
-                        ...prev,
-                        experience: prev.experience.map(item =>
-                          item.id === exp.id ? { ...item, description: e.target.value } : item
-                        )
-                      }))}
-                    />
+              {/* Education */}
+              {formData.education && (
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-primary mb-4 border-b-2 border-gray-300 pb-2">EDUCATION</h2>
+                  <div className="space-y-3">
+                    {formData.education.split('\n').filter(edu => edu.trim()).map((edu, index) => (
+                      <div key={index} className="border-l-4 border-primary pl-4">
+                        <p className="text-base font-medium">{edu}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
+              )}
 
-          {/* Education */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Education</CardTitle>
-              <Button onClick={addEducation} size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Education
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {resumeData.education.map((edu, index) => (
-                <div key={edu.id} className="border rounded-lg p-4 space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-semibold">Education {index + 1}</h4>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => removeEducation(edu.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div>
-                      <Label>Degree</Label>
-                      <Input
-                        value={edu.degree}
-                        onChange={(e) => setResumeData(prev => ({
-                          ...prev,
-                          education: prev.education.map(item =>
-                            item.id === edu.id ? { ...item, degree: e.target.value } : item
-                          )
-                        }))}
-                      />
-                    </div>
-                    <div>
-                      <Label>Institution</Label>
-                      <Input
-                        value={edu.institution}
-                        onChange={(e) => setResumeData(prev => ({
-                          ...prev,
-                          education: prev.education.map(item =>
-                            item.id === edu.id ? { ...item, institution: e.target.value } : item
-                          )
-                        }))}
-                      />
-                    </div>
-                    <div>
-                      <Label>Year</Label>
-                      <Input
-                        value={edu.year}
-                        onChange={(e) => setResumeData(prev => ({
-                          ...prev,
-                          education: prev.education.map(item =>
-                            item.id === edu.id ? { ...item, year: e.target.value } : item
-                          )
-                        }))}
-                      />
-                    </div>
+              {/* Experience */}
+              {formData.experience && (
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-primary mb-4 border-b-2 border-gray-300 pb-2">PROFESSIONAL EXPERIENCE</h2>
+                  <div className="space-y-3">
+                    {formData.experience.split('\n').filter(exp => exp.trim()).map((exp, index) => (
+                      <div key={index} className="border-l-4 border-secondary pl-4">
+                        <p className="text-base">{exp.startsWith('•') ? exp : `• ${exp}`}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
+              )}
 
-          {/* Skills */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Skills</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Label htmlFor="skills">Skills (comma-separated)</Label>
-              <Input
-                id="skills"
-                placeholder="e.g., JavaScript, React, Node.js, Python"
-                value={resumeData.skills.join(', ')}
-                onChange={(e) => handleSkillsChange(e.target.value)}
-              />
-            </CardContent>
-          </Card>
-
-          {/* Projects */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Projects</CardTitle>
-              <Button onClick={addProject} size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Project
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {resumeData.projects.map((project, index) => (
-                <div key={project.id} className="border rounded-lg p-4 space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-semibold">Project {index + 1}</h4>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => removeProject(project.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <div>
-                    <Label>Project Title</Label>
-                    <Input
-                      value={project.title}
-                      onChange={(e) => setResumeData(prev => ({
-                        ...prev,
-                        projects: prev.projects.map(item =>
-                          item.id === project.id ? { ...item, title: e.target.value } : item
-                        )
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label>Description</Label>
-                    <Textarea
-                      value={project.description}
-                      onChange={(e) => setResumeData(prev => ({
-                        ...prev,
-                        projects: prev.projects.map(item =>
-                          item.id === project.id ? { ...item, description: e.target.value } : item
-                        )
-                      }))}
-                    />
-                  </div>
-                  <div>
-                    <Label>Technologies Used</Label>
-                    <Input
-                      placeholder="e.g., React, TypeScript, Tailwind CSS"
-                      value={project.technologies}
-                      onChange={(e) => setResumeData(prev => ({
-                        ...prev,
-                        projects: prev.projects.map(item =>
-                          item.id === project.id ? { ...item, technologies: e.target.value } : item
-                        )
-                      }))}
-                    />
+              {/* Projects */}
+              {formData.projects && (
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-primary mb-4 border-b-2 border-gray-300 pb-2">PROJECTS</h2>
+                  <div className="space-y-3">
+                    {formData.projects.split('\n').filter(project => project.trim()).map((project, index) => (
+                      <div key={index} className="border-l-4 border-accent pl-4">
+                        <p className="text-base">{project.startsWith('•') ? project : `• ${project}`}</p>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </CardContent>
-          </Card>
-        </div>
+              )}
+
+              {/* Technical Skills */}
+              {formData.skills && (
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-primary mb-4 border-b-2 border-gray-300 pb-2">TECHNICAL SKILLS</h2>
+                  <div className="grid grid-cols-1 gap-2">
+                    {formData.skills.split('\n').filter(skill => skill.trim()).map((skill, index) => (
+                      <p key={index} className="text-base font-medium bg-gray-50 p-2 rounded">{skill}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Certifications */}
+              {formData.certifications && (
+                <div className="mb-8">
+                  <h2 className="text-2xl font-bold text-primary mb-4 border-b-2 border-gray-300 pb-2">CERTIFICATIONS</h2>
+                  <div className="space-y-2">
+                    {formData.certifications.split('\n').filter(cert => cert.trim()).map((cert, index) => (
+                      <p key={index} className="text-base">{cert.startsWith('•') ? cert : `• ${cert}`}</p>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Declaration */}
+              <div className="mt-12 pt-8 border-t-2 border-gray-300">
+                <h2 className="text-2xl font-bold text-primary mb-4">DECLARATION</h2>
+                <p className="text-base mb-6 text-justify">
+                  I hereby declare that the above-mentioned information is true, correct, and complete to the best of my knowledge.
+                </p>
+                <div className="flex justify-between items-end mt-8">
+                  <div className="text-base">
+                    <p><strong>Place:</strong> {formData.location || '________________'}</p>
+                    <p><strong>Date:</strong> {new Date().toLocaleDateString('en-GB')}</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="border-b-2 border-black w-48 mb-2"></div>
+                    <p className="font-bold text-lg">{formData.fullName}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-center space-x-4 mt-6">
+              <Button onClick={() => setShowPreview(false)} variant="outline" size="lg">
+                ← Edit Resume
+              </Button>
+              <Button onClick={generatePDF} className="bg-primary hover:bg-primary/90" size="lg">
+                📄 Download PDF
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
